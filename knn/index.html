@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>KNN</title><link rel="stylesheet" href="kv.css">
+<style>
+html,body{height:100%}
+body{padding:0;display:block;overflow:hidden}
+.app{height:100vh;display:flex;gap:20px;padding:16px}
+.stage{flex:1;min-width:0;height:100%}
+.stage canvas{width:100%;height:100%;aspect-ratio:auto;border-radius:16px}
+.side{width:300px;display:flex;flex-direction:column;justify-content:center;gap:26px}
+.side h1{margin:0;font-size:34px}
+.votes{min-height:90px;margin:0;font-size:54px;gap:18px}
+.ctl{margin:0;flex-direction:column;align-items:stretch;gap:6px}
+.ctl .row1{display:flex;justify-content:space-between;font-size:30px}
+.bar{display:flex;flex-direction:column;gap:10px}
+.bar button{font:inherit;font-size:20px;font-weight:600;padding:12px 20px;border-radius:999px;border:0;background:#ffffff30;color:#fff;cursor:pointer}
+.bar button.on{background:#fff;color:#2d4fa3}
+@media(max-width:900px){.app{flex-direction:column;height:100vh}.side{width:auto;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px}.side h1{display:none}.votes{font-size:34px;min-height:0}.ctl{flex:1;min-width:200px}.bar{flex-direction:row}}
+</style></head>
+<body><a href="../index.html" title="Wszystkie wizualizacje" style="position:fixed;left:6px;top:6px;z-index:9;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font:700 16px Inter,system-ui,sans-serif;color:#2d4fa3;background:#ffffffd9;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px #0003">←</a><div class="app">
+<div class="stage"><canvas id="c"></canvas></div>
+<div class="side"><h1>KNN</h1>
+<div class="votes" id="v"></div>
+<div class="ctl"><div class="row1"><span>K</span><b id="kv">5</b></div><input id="k" type="range" min="1" max="30" value="5"></div>
+<div class="bar"><button id="bd">Granice</button><button id="clr">Wyczyść</button></div></div>
+</div>
+<script src="common.js"></script>
+<script>
+const S=SKN,$=S.$,ds=S.makeDataset('moons',1),C=S.COLORS;
+const p=new S.Plot($('c'),ds,{margin:4,grid:120}),G=p.gridPoints();
+const order=G.map(g=>S.knnSorted(ds.X,g,'euclid').map(s=>s[1]));
+let pts=[],showB=false;
+function pred(q,K){const s=S.knnSorted(ds.X,q,'euclid'),v=S.knnVotes(s,ds.y,K,2,false);return{s,v,c:v[1]>v[0]?1:0}}
+function draw(){const K=+$('k').value;$('kv').textContent=K;p.clear();
+ if(showB)p.regions(order.map(o=>{const v=[0,0];for(let j=0;j<K;j++)v[ds.y[o[j]]]++;return v.map(t=>t/K)}),'hard');
+ const R=Math.max(5,p.w/140);p.points(ds.X,ds.y,'train',R);
+ const c=p.ctx;let last=null;
+ pts.forEach((q,i)=>{const r=pred(q,K);
+  if(i===pts.length-1){last=r;for(let j=0;j<K;j++){const a=ds.X[r.s[j][1]];p.line(q,a,'#1f2a4d',1.6,[]);
+   c.beginPath();c.arc(p.sx(a[0]),p.sy(a[1]),R*1.8,0,6.2832);c.lineWidth=2.5;c.strokeStyle='#1f2a4d';c.stroke();}}
+  p.query(q,C[r.c]);});
+ $('v').innerHTML=last?'<span style="color:'+C[0]+'">'+last.v[0]+'</span><span style="color:'+C[1]+'">'+last.v[1]+'</span>':'';}
+$('c').addEventListener('pointerdown',e=>{const t=p.eventPoint(e);if(t){pts.push(t);draw()}});
+$('k').addEventListener('input',draw);
+$('bd').addEventListener('click',function(){showB=!showB;this.classList.toggle('on',showB);draw()});
+$('clr').addEventListener('click',()=>{pts=[];draw()});
+S.onResize(()=>{p.resize();draw()});draw();
+</script></body></html>

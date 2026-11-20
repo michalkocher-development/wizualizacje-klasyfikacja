@@ -1,0 +1,11 @@
+<!DOCTYPE html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Boosting – reszty</title><link rel="stylesheet" href="tv.css"><link rel="stylesheet" href="bst.css">
+<style>.grid{flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) 270px;grid-template-rows:minmax(0,1fr) 185px;gap:12px}</style></head>
+<body><a href="../index.html" title="Wszystkie wizualizacje" style="position:fixed;left:6px;top:6px;z-index:9;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font:700 16px Inter,system-ui,sans-serif;color:#2d4fa3;background:#ffffffd9;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px #0003">←</a><div class="app"><div class="grid">
+<div class="card"><canvas id="c"></canvas></div>
+<div class="card"><canvas id="er"></canvas></div>
+<div class="card"><canvas id="th"></canvas></div>
+<div class="corner"><div class="head" id="head"></div>
+<div class="ctl2"><div class="r"><span>głębokość drzewa</span><b id="dv"></b></div><input id="dp" type="range" min="1" max="4" value="2"></div>
+<div class="bar"><button id="go" class="on main">Ucz następne drzewo</button><button id="five">+5</button><button id="rst" class="rst" title="Od nowa">↺</button></div></div>
+</div></div>
+<script>window.MODE='B'</script><script src="common.js"></script><script src="eng.js"></script><script src="app.js"></script></body></html>

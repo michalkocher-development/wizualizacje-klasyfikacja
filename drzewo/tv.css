@@ -1,0 +1,20 @@
+*{box-sizing:border-box}
+html,body{height:100%}
+html{background:#2d4fa3}
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#fff;background:linear-gradient(160deg,#5687e0,#2d4fa3);overflow:hidden}
+.app{height:100vh;display:flex;gap:18px;padding:16px}
+.stage{flex:1;min-width:0;height:100%}
+canvas{display:block;width:100%;height:100%;border-radius:16px;box-shadow:0 8px 30px #0003;touch-action:none}
+.tree{flex:1;min-width:0;height:100%;background:#fff;border-radius:16px;box-shadow:0 8px 30px #0003;padding:10px;display:flex;align-items:center}
+.tree svg{width:100%;height:100%}
+.side{width:290px;display:flex;flex-direction:column;justify-content:center;gap:24px}
+.side h1{margin:0;font-size:34px}
+.ctl{display:flex;flex-direction:column;gap:6px}
+.ctl .r{display:flex;justify-content:space-between;font-size:26px;font-weight:600}
+.ctl .r b{color:#ffd89d}
+.ctl input{width:100%;height:8px;accent-color:#ffd89d}
+.bar{display:flex;flex-direction:column;gap:10px}
+button{font:inherit;font-size:20px;font-weight:600;padding:12px 20px;border-radius:999px;border:0;background:#ffffff30;color:#fff;cursor:pointer}
+button.on{background:#fff;color:#2d4fa3}
+.pred{font-size:40px;font-weight:700;text-align:center;padding:14px;border-radius:16px;background:#fff;box-shadow:0 4px 14px #0002}
+@media(max-width:900px){.app{flex-direction:column}.side{width:auto;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px}.side h1{display:none}.ctl{flex:1;min-width:200px}.bar{flex-direction:row}.stage,.tree{height:auto;flex:1}}

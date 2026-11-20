@@ -1,0 +1,8 @@
+.card{background:#f5f7fd;border-radius:16px;box-shadow:0 8px 30px #0003;overflow:hidden;min-height:0;position:relative}
+.card canvas{box-shadow:none;border-radius:0;background:transparent}
+.ttl{position:absolute;left:10px;top:8px;background:#ffffffe0;padding:2px 8px;border-radius:7px;font-size:15px;font-weight:700;color:#5d6a8e;pointer-events:none}
+.corner{display:flex;flex-direction:column;justify-content:space-between;gap:8px;min-height:0;overflow:hidden}
+.head{font-size:18px;font-weight:600;line-height:1.35}.head b{color:#ffd89d}.head small{display:block;font-size:15px;font-weight:500;color:#dfe8ff}
+.corner .bar{flex-direction:row;gap:8px;flex-wrap:wrap}.corner button{padding:8px 14px;font-size:16px}.corner .rst{flex:0 0 44px;padding:8px 0;font-size:20px}.corner .main{flex:1}
+.ctl2 .r{display:flex;justify-content:space-between;font-size:16px;font-weight:600}.ctl2 .r b{color:#ffd89d}.ctl2 input{width:100%;accent-color:#ffd89d}
+button:disabled{opacity:.45;cursor:default}

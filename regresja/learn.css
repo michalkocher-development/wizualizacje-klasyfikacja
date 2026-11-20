@@ -1,0 +1,7 @@
+.side{width:340px;gap:18px}
+.stage canvas{background:#fff}
+.lbl{font-size:17px;font-weight:600;opacity:.95;margin-bottom:6px}
+#cv{height:200px;width:100%;flex:none}
+.stat{display:flex;gap:12px}.stat div{flex:1;background:#fff;color:#1f2a4d;border-radius:14px;padding:8px 6px;text-align:center;font-size:15px;font-weight:600}.stat b{display:block;font-size:30px;color:#e4572e}.stat div+div b{color:#2b6fd6}
+.bar button.on{background:#fff;color:#2d4fa3}
+.ctl.small .row1{font-size:19px}

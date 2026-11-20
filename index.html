@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Interaktywne wizualizacje algorytmów klasyfikacji – Koło Naukowe Data Science.">
+<title>Klasyfikacja – wizualizacje</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --bg-top:#5687e0;
+  --bg-bottom:#264696;
+  --ink:#1b274b;
+  --muted:#5a688d;
+  --accent:#ffd89d;
+  --blue:#2d4fa3;
+  --blue-bright:#4d7ee0;
+}
+html{background:var(--bg-bottom)}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  color:#fff;
+  background:
+    radial-gradient(900px 520px at 14% -6%,rgba(147,190,255,.32),transparent 62%),
+    radial-gradient(760px 520px at 88% 104%,rgba(255,216,157,.14),transparent 60%),
+    linear-gradient(160deg,var(--bg-top) 0%,#3a63bd 48%,var(--bg-bottom) 100%);
+  padding:46px 28px 68px;
+  position:relative;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.11) 1px,transparent 1px);
+  background-size:28px 28px;
+  mask-image:radial-gradient(ellipse 85% 75% at 50% 30%,#000 30%,transparent 100%);
+  -webkit-mask-image:radial-gradient(ellipse 85% 75% at 50% 30%,#000 30%,transparent 100%);
+}
+.wrap{
+  position:relative;
+  max-width:1200px;
+  margin:0 auto;
+}
+header{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:26px;
+  max-width:820px;
+  margin:0 auto 42px;
+}
+.logo-wrap{
+  position:relative;
+  flex:none;
+  width:96px;
+  height:96px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.logo-wrap::before{
+  content:"";
+  position:absolute;
+  inset:-10px;
+  border-radius:999px;
+  background:radial-gradient(circle,rgba(255,255,255,.24) 0%,rgba(255,216,157,.10) 48%,transparent 72%);
+  pointer-events:none;
+}
+.logo{
+  position:relative;
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  filter:drop-shadow(0 8px 18px rgba(12,26,68,.34));
+  transition:transform .45s cubic-bezier(.22,1,.36,1);
+}
+.logo-wrap:hover .logo{
+  transform:rotate(15deg) scale(1.03);
+}
+.hero-copy{
+  min-width:0;
+  text-align:left;
+}
+h1{
+  margin:0;
+  font-size:clamp(30px,4.2vw,44px);
+  font-weight:700;
+  letter-spacing:-.025em;
+  line-height:1.12;
+  text-shadow:0 2px 18px rgba(15,30,74,.24);
+}
+.lead{
+  margin:8px 0 0;
+  max-width:540px;
+  font-size:15.5px;
+  line-height:1.5;
+  color:rgba(236,243,255,.88);
+}
+.grid{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:28px 26px;
+}
+a.card{
+  flex:0 1 calc((100% - 52px) / 3);
+  min-width:0;
+  display:flex;
+  text-decoration:none;
+  color:var(--ink);
+  padding:7px;
+  border-radius:27px;
+  background:linear-gradient(155deg,rgba(255,255,255,.22) 0%,rgba(255,255,255,.07) 100%);
+  border:1px solid rgba(255,255,255,.30);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.34),
+    0 18px 40px -12px rgba(12,26,68,.44);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  transition:
+    transform .22s cubic-bezier(.22,1,.36,1),
+    background .22s ease,
+    border-color .22s ease,
+    box-shadow .22s cubic-bezier(.22,1,.36,1);
+}
+a.card:hover,a.card:focus-visible{
+  transform:translateY(-6px);
+  background:linear-gradient(155deg,rgba(255,216,157,.30) 0%,rgba(255,255,255,.10) 100%);
+  border-color:rgba(255,216,157,.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255,240,210,.55),
+    0 26px 50px -12px rgba(10,22,58,.54),
+    0 0 24px rgba(255,216,157,.20);
+  outline:none;
+}
+a.card:focus-visible{
+  border-color:var(--accent);
+  box-shadow:
+    0 0 0 3px rgba(255,216,157,.55),
+    inset 0 1px 0 rgba(255,240,210,.55),
+    0 26px 50px -12px rgba(10,22,58,.54);
+}
+.card-inner{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  background:linear-gradient(180deg,#ffffff 0%,#f6f9ff 100%);
+  border-radius:20px;
+  padding:10px 10px 0;
+  border:1px solid rgba(255,255,255,.96);
+  box-shadow:0 2px 10px rgba(15,30,74,.14);
+}
+.thumb{
+  position:relative;
+  aspect-ratio:750 / 410;
+  border-radius:12px;
+  overflow:hidden;
+  background:var(--blue);
+  border:1px solid rgba(45,79,163,.18);
+  box-shadow:0 0 0 3px rgba(86,135,224,.09);
+  transition:border-color .22s ease,box-shadow .22s ease;
+}
+.thumb::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.18),
+    inset 0 1px 0 rgba(255,255,255,.28);
+}
+a.card:hover .thumb,a.card:focus-visible .thumb{
+  border-color:rgba(45,79,163,.32);
+  box-shadow:0 0 0 3px rgba(86,135,224,.17);
+}
+.thumb img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:transform .38s cubic-bezier(.22,1,.36,1);
+}
+a.card:hover .thumb img,a.card:focus-visible .thumb img{
+  transform:scale(1.028);
+}
+.body{
+  padding:16px 10px 18px;
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+.num{
+  flex:none;
+  width:32px;
+  height:32px;
+  border-radius:999px;
+  background:linear-gradient(150deg,var(--blue-bright),var(--blue));
+  color:#fff;
+  font-weight:700;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:
+    0 0 0 3px rgba(86,135,224,.15),
+    0 3px 8px rgba(45,79,163,.28);
+  transition:transform .22s ease,box-shadow .22s ease;
+}
+a.card:hover .num,a.card:focus-visible .num{
+  transform:scale(1.05);
+  box-shadow:
+    0 0 0 4px rgba(255,216,157,.45),
+    0 4px 10px rgba(45,79,163,.34);
+}
+.text{
+  flex:1;
+  min-width:0;
+}
+.card h2{
+  margin:0;
+  font-size:20px;
+  font-weight:700;
+  letter-spacing:-.015em;
+  line-height:1.2;
+}
+.card p{
+  margin:4px 0 0;
+  font-size:14.5px;
+  color:var(--muted);
+  line-height:1.4;
+}
+.arrow{
+  flex:none;
+  width:30px;
+  height:30px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+  font-weight:600;
+  color:var(--blue);
+  background:rgba(45,79,163,.07);
+  border:1px solid rgba(45,79,163,.12);
+  transition:transform .22s ease,background-color .22s ease,color .22s ease,border-color .22s ease;
+}
+a.card:hover .arrow,a.card:focus-visible .arrow{
+  transform:translateX(3px);
+  background:var(--blue);
+  border-color:var(--blue);
+  color:#fff;
+}
+@media (max-width:1060px){
+  a.card{flex-basis:calc((100% - 26px) / 2)}
+}
+@media (max-width:680px){
+  body{padding:36px 18px 52px}
+  header{
+    flex-direction:column;
+    gap:16px;
+    margin-bottom:32px;
+  }
+  .logo-wrap{width:88px;height:88px}
+  .hero-copy{text-align:center}
+  .lead{margin-inline:auto}
+  .grid{gap:22px}
+  a.card{flex-basis:100%}
+}
+@media (prefers-reduced-motion:reduce){
+  .logo,a.card,.thumb,.thumb img,.num,.arrow{transition:none}
+  .logo-wrap:hover .logo{transform:none}
+  a.card:hover,a.card:focus-visible{transform:none}
+  a.card:hover .thumb img,a.card:focus-visible .thumb img{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo-wrap">
+      <img class="logo" src="logo.png" alt="Logo Koła Naukowego Data Science" width="96" height="96">
+    </div>
+    <div class="hero-copy">
+      <h1>Klasyfikacja – wizualizacje</h1>
+      <p class="lead">Interaktywne prezentacje algorytmów klasyfikacji. Wybierz metodę, aby zobaczyć, jak podejmuje decyzje.</p>
+    </div>
+  </header>
+  <main class="grid">
+    <a class="card" href="knn/index.html">
+      <div class="card-inner">
+        <div class="thumb"><img src="img/knn.jpg" alt="Podgląd wizualizacji KNN" width="750" height="410"></div>
+        <div class="body">
+          <span class="num">1</span>
+          <div class="text">
+            <h2>KNN</h2>
+            <p>Sąsiedzi głosują, parametr K</p>
+          </div>
+          <span class="arrow" aria-hidden="true">→</span>
+        </div>
+      </div>
+    </a>
+    <a class="card" href="drzewo/index.html">
+      <div class="card-inner">
+        <div class="thumb"><img src="img/drzewo.jpg" alt="Podgląd wizualizacji Drzewo decyzyjne" width="750" height="410"></div>
+        <div class="body">
+          <span class="num">2</span>
+          <div class="text">
+            <h2>Drzewo decyzyjne</h2>
+            <p>Jak drzewo szuka podziału (gini)</p>
+          </div>
+          <span class="arrow" aria-hidden="true">→</span>
+        </div>
+      </div>
+    </a>
+    <a class="card" href="las/index.html">
+      <div class="card-inner">
+        <div class="thumb"><img src="img/las.jpg" alt="Podgląd wizualizacji Las losowy" width="750" height="410"></div>
+        <div class="body">
+          <span class="num">3</span>
+          <div class="text">
+            <h2>Las losowy</h2>
+            <p>Wiele drzew i głosowanie</p>
+          </div>
+          <span class="arrow" aria-hidden="true">→</span>
+        </div>
+      </div>
+    </a>
+    <a class="card" href="regresja/index.html">
+      <div class="card-inner">
+        <div class="thumb"><img src="img/regresja.jpg" alt="Podgląd wizualizacji Regresja logistyczna" width="750" height="410"></div>
+        <div class="body">
+          <span class="num">4</span>
+          <div class="text">
+            <h2>Regresja logistyczna</h2>
+            <p>Krzywa S i próg decyzyjny</p>
+          </div>
+          <span class="arrow" aria-hidden="true">→</span>
+        </div>
+      </div>
+    </a>
+    <a class="card" href="boosting/index.html">
+      <div class="card-inner">
+        <div class="thumb"><img src="img/boosting.jpg" alt="Podgląd wizualizacji Gradient boosting" width="750" height="410"></div>
+        <div class="body">
+          <span class="num">5</span>
+          <div class="text">
+            <h2>Gradient boosting</h2>
+            <p>Każde drzewo poprawia poprzednie</p>
+          </div>
+          <span class="arrow" aria-hidden="true">→</span>
+        </div>
+      </div>
+    </a>
+  </main>
+</div>
+</body>
+</html>
