@@ -1,6 +1,17 @@
 <!DOCTYPE html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Las losowy – głosowanie</title><link rel="stylesheet" href="tv.css"><link rel="stylesheet" href="bst.css">
 <style>.grid{flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) 270px;grid-template-rows:minmax(0,1fr) 200px;gap:12px}
-#c{cursor:crosshair}</style></head>
+#c{cursor:crosshair}
+@media(max-width:900px){html,body{height:auto}body{overflow-x:hidden;overflow-y:auto}
+.app{display:block;height:auto;min-height:100vh;padding:46px 10px 20px}
+.grid{display:flex;flex-direction:column;gap:10px}
+.grid>.card:nth-child(1){order:1;height:clamp(300px,92vw,600px)}
+.grid>.corner{order:2;gap:12px;overflow:visible}
+.grid>.card:nth-child(3){order:3;height:200px}
+.grid>.card:nth-child(2){order:4;height:560px}
+.head{font-size:17px}.ctl2 .r{font-size:17px}.ctl2 input{height:28px}
+.corner .bar{gap:10px}.corner button{padding:11px 14px;font-size:17px}.corner .rst{flex:0 0 52px}
+#th,#vt{touch-action:pan-y}}
+</style></head>
 <body><a href="../index.html" title="Wszystkie wizualizacje" style="position:fixed;left:6px;top:6px;z-index:9;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font:700 16px Inter,system-ui,sans-serif;color:#2d4fa3;background:#ffffffd9;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px #0003">←</a><div class="app"><div class="grid">
 <div class="card"><canvas id="c"></canvas></div>
 <div class="card"><canvas id="vt"></canvas></div>
@@ -58,29 +69,38 @@ function draw(){const ph=phase(),{c,w,h}=fit($('c')),mp=map(w,h);c.fillStyle='#f
   c.beginPath();c.arc(mp.sx(PX[i][0]),mp.sy(PX[i][1]),r,0,6.2832);c.fillStyle=C[PY[i]];c.fill();c.lineWidth=lw;c.strokeStyle=ring;c.stroke()}
  if(trained&&ph.main>=1)star(c,mp.sx(q[0]),mp.sy(q[1]),15);
  {const t=T>=0?'nowe dane · drzewo nr '+(T+1)+': czarna obwódka = błąd drzewa i lasu · zielona = błąd drzewa naprawiony przez las':trained?'nowe dane · tło = głosy lasu · obwódka = błąd lasu · kliknij drzewo na dole':'dane treningowe · każde drzewo dostanie z nich losową próbkę';
-  c.font='700 14px Inter,sans-serif';const tw=c.measureText(t).width+18;c.fillStyle='#ffffffe0';c.beginPath();c.roundRect(w-tw-10,h-34,tw,26,8);c.fill();c.fillStyle='#5d6a8e';c.textAlign='left';c.fillText(t,w-tw-1,h-16)}
+  caption(c,w,h,t)}
  thumbs(ph);voteCard(ph);head()}
+function caption(c,w,h,t){c.font=(w<500?'700 12px':'700 14px')+' Inter,sans-serif';const max=w-38,L=[];let line='';
+ t.split(' ').forEach(wd=>{const s=line?line+' '+wd:wd;if(line&&c.measureText(s).width>max){L.push(line);line=wd}else line=s});L.push(line);
+ const lh=w<500?16:18,tw=Math.max(...L.map(l=>c.measureText(l).width))+18,bh=L.length*lh+8;
+ c.fillStyle='#ffffffe0';c.beginPath();c.roundRect(w-tw-10,h-bh-8,tw,bh,8);c.fill();c.fillStyle='#5d6a8e';c.textAlign='left';L.forEach((l,i)=>c.fillText(l,w-tw-1,h-bh-8+lh*(i+1)-2))}
 let thumbBoxes=[];
-function thumbs(ph){const{c,w,h}=fit($('th'));c.fillStyle='#f5f7fd';c.fillRect(0,0,w,h);c.fillStyle='#5d6a8e';c.font='700 14px Inter,sans-serif';c.textAlign='left';
- c.fillText(trees.length?'Las: '+trees.length+' drzew uczonych jednocześnie, każde na innej losowej próbce':'Las (jeszcze brak drzew)',12,20);thumbBoxes=[];if(!trees.length)return;
- const n=trees.length+1,gap=10,sep=16,sz=Math.min(h-58,(w-24-gap*(n-2)-sep)/n);let x=12;const vq=trained&&ph.main>=1,sel=cur();
+function thumbs(ph){const th=$('th'),n=trees.length+1,gap=10,narrow=th.getBoundingClientRect().width<600;let cols=n,sz,sep=16;
+ if(narrow){const W=th.getBoundingClientRect().width;cols=Math.max(2,Math.min(n,Math.floor((W-24+gap)/(68+gap))));sz=(W-24-gap*(cols-1))/cols;sep=gap;
+  const H=Math.round(34+Math.ceil(n/cols)*(sz+30)),card=th.parentNode;if(!trees.length)card.style.height='';else if(Math.abs(card.getBoundingClientRect().height-H)>1)card.style.height=H+'px'}
+ else th.parentNode.style.height='';
+ const{c,w,h}=fit(th);c.fillStyle='#f5f7fd';c.fillRect(0,0,w,h);c.fillStyle='#5d6a8e';c.font='700 14px Inter,sans-serif';c.textAlign='left';
+ c.fillText(trees.length?(narrow?'Las: '+trees.length+' drzew, każde na innej próbce':'Las: '+trees.length+' drzew uczonych jednocześnie, każde na innej losowej próbce'):'Las (jeszcze brak drzew)',12,20);thumbBoxes=[];if(!trees.length)return;
+ if(!narrow)sz=Math.min(h-58,(w-24-gap*(n-2)-sep)/n);let x=12,ty=30,idx=0;const vq=trained&&ph.main>=1,sel=cur();
+ const adv=()=>{idx++;if(narrow&&idx%cols===0){x=12;ty+=sz+30}};
  /* kafelek „las” */
- {const mp=map(sz,sz,0);c.save();c.translate(x,30);c.beginPath();c.roundRect(0,0,sz,sz,8);c.clip();c.fillStyle='#fff';c.fillRect(0,0,sz,sz);
+ {const mp=map(sz,sz,0);c.save();c.translate(x,ty);c.beginPath();c.roundRect(0,0,sz,sz,8);c.clip();c.fillStyle='#fff';c.fillRect(0,0,sz,sz);
   if(ph.main>0){const G=40,cs=sz/G;for(let j=0;j<G;j++)for(let i=0;i<G;i++){const p=pForest([V.x0+(i+.5)/G*(V.x1-V.x0),V.y1-(j+.5)/G*(V.y1-V.y0)]),col=RGB[p>=.5?1:0];
    c.fillStyle='rgba('+col.join(',')+','+ph.main*(.1+.6*Math.abs(p-.5)*2)+')';c.fillRect(i*cs,j*cs,cs+.5,cs+.5)}}
   if(vq){c.beginPath();c.arc(mp.sx(q[0]),mp.sy(q[1]),4,0,6.2832);c.fillStyle='#ffd23f';c.fill();c.lineWidth=1.5;c.strokeStyle='#1f2a4d';c.stroke()}c.restore();
-  c.fillStyle='#1f2a4d';c.font='700 13px Inter,sans-serif';c.textAlign='center';c.fillText('cały las',x+sz/2,30+sz+18);
-  if(sel===-1){c.lineWidth=3;c.strokeStyle='#7b5cf0';c.beginPath();c.roundRect(x-5,25,sz+10,sz+10,11);c.stroke()}
-  thumbBoxes.push([x,30,sz,-1]);x+=sz+sep;c.strokeStyle='#d5dcef';c.lineWidth=1.5;c.beginPath();c.moveTo(x-sep/2,34);c.lineTo(x-sep/2,30+sz);c.stroke()}
- trees.forEach((tr,k)=>{const mp=map(sz,sz,0);c.save();c.translate(x,30);c.beginPath();c.roundRect(0,0,sz,sz,8);c.clip();c.fillStyle='#fff';c.fillRect(0,0,sz,sz);
+  c.fillStyle='#1f2a4d';c.font='700 13px Inter,sans-serif';c.textAlign='center';c.fillText('cały las',x+sz/2,ty+sz+18);
+  if(sel===-1){c.lineWidth=3;c.strokeStyle='#7b5cf0';c.beginPath();c.roundRect(x-5,ty-5,sz+10,sz+10,11);c.stroke()}
+  thumbBoxes.push([x,ty,sz,-1]);x+=sz+sep;if(!narrow){c.strokeStyle='#d5dcef';c.lineWidth=1.5;c.beginPath();c.moveTo(x-sep/2,34);c.lineTo(x-sep/2,30+sz);c.stroke()}adv()}
+ trees.forEach((tr,k)=>{const mp=map(sz,sz,0);c.save();c.translate(x,ty);c.beginPath();c.roundRect(0,0,sz,sz,8);c.clip();c.fillStyle='#fff';c.fillRect(0,0,sz,sz);
   drawTree(c,mp,tr,ph,1.4);tr.smp.forEach(i=>{c.beginPath();c.arc(mp.sx(X[i][0]),mp.sy(X[i][1]),1.6,0,6.2832);c.fillStyle=C[Y[i]];c.fill()});
   if(vq){c.beginPath();c.arc(mp.sx(q[0]),mp.sy(q[1]),4,0,6.2832);c.fillStyle='#ffd23f';c.fill();c.lineWidth=1.5;c.strokeStyle='#1f2a4d';c.stroke()}
   c.restore();
-  if(vq){const p=pred(tr,q);c.lineWidth=4;c.strokeStyle=C[p];c.beginPath();c.roundRect(x-2,28,sz+4,sz+4,9);c.stroke();
-   c.fillStyle=C[p];c.font='700 12px Inter,sans-serif';c.textAlign='center';c.fillText('głos: '+(p?'niebieska':'czerwona'),x+sz/2,30+sz+18)}
-  else{c.fillStyle='#7b87a8';c.font='600 12px Inter,sans-serif';c.textAlign='center';c.fillText('nr '+(k+1),x+sz/2,30+sz+18)}
-  if(k===sel){c.lineWidth=3;c.strokeStyle='#7b5cf0';c.beginPath();c.roundRect(x-5,25,sz+10,sz+10,11);c.stroke()}
-  thumbBoxes.push([x,30,sz,k]);x+=sz+gap})}
+  if(vq){const p=pred(tr,q);c.lineWidth=4;c.strokeStyle=C[p];c.beginPath();c.roundRect(x-2,ty-2,sz+4,sz+4,9);c.stroke();
+   c.fillStyle=C[p];c.font='700 12px Inter,sans-serif';c.textAlign='center';c.fillText(sz<80?(p?'niebieska':'czerwona'):'głos: '+(p?'niebieska':'czerwona'),x+sz/2,ty+sz+18)}
+  else{c.fillStyle='#7b87a8';c.font='600 12px Inter,sans-serif';c.textAlign='center';c.fillText('nr '+(k+1),x+sz/2,ty+sz+18)}
+  if(k===sel){c.lineWidth=3;c.strokeStyle='#7b5cf0';c.beginPath();c.roundRect(x-5,ty-5,sz+10,sz+10,11);c.stroke()}
+  thumbBoxes.push([x,ty,sz,k]);x+=sz+gap;adv()})}
 function voteCard(ph){const{c,w,h}=fit($('vt'));c.fillStyle='#f5f7fd';c.fillRect(0,0,w,h);c.fillStyle='#5d6a8e';c.font='700 14px Inter,sans-serif';c.textAlign='left';c.fillText('Głosowanie dla ★',12,20);
  if(!(trained&&ph.main>=1))return;
  const v=votes(q),n=trees.length,cols=Math.min(5,n),cell=Math.min(34,(w-24)/cols-6);
@@ -106,8 +126,9 @@ $('nt').oninput=()=>{head();if(trained&&!anim)go()};$('dp').oninput=()=>{head();
 const cv=$('c');let drag=false;
 function mv(e){const r=cv.getBoundingClientRect(),mp=map(r.width,r.height);q=[Math.max(V.x0,Math.min(V.x1,mp.ix(e.clientX-r.left))),Math.max(V.y0,Math.min(V.y1,mp.iy(e.clientY-r.top)))];draw()}
 cv.onpointerdown=e=>{if(!trained||anim)return;drag=true;cv.setPointerCapture(e.pointerId);mv(e)};cv.onpointermove=e=>{if(drag)mv(e)};cv.onpointerup=()=>drag=false;
-const th=$('th');th.onpointermove=e=>{if(anim)return;const r=th.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;const bx=thumbBoxes.find(b=>x>=b[0]&&x<=b[0]+b[2]&&y>=b[1]&&y<=b[1]+b[2]),k=bx?bx[3]:null;if(k!==hoverT){hoverT=k;draw()}};
-th.onclick=e=>{if(anim||hoverT===null)return;selT=hoverT;draw()};
+const th=$('th'),hit=e=>{const r=th.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;const bx=thumbBoxes.find(b=>x>=b[0]&&x<=b[0]+b[2]&&y>=b[1]&&y<=b[1]+b[2]);return bx?bx[3]:null};
+th.onpointermove=e=>{if(anim||e.pointerType!=='mouse')return;const k=hit(e);if(k!==hoverT){hoverT=k;draw()}};
+th.onclick=e=>{if(anim)return;const k=hit(e);if(k===null)return;selT=k;hoverT=null;draw()};
 th.onpointerleave=()=>{if(hoverT!==null){hoverT=null;draw()}};
 S.onResize(draw);draw();
 </script></body></html>

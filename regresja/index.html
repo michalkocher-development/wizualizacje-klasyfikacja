@@ -1,5 +1,12 @@
 <!DOCTYPE html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Regresja logistyczna – krzywa S i próg</title><link rel="stylesheet" href="lr.css"><link rel="stylesheet" href="learn.css">
-<style>.side{width:350px;gap:14px;justify-content:center}.side h1{font-size:28px}#cv{height:110px}.cm .n{padding:6px 0;font-size:26px}.m b{font-size:28px}.sec{border-top:2px solid #ffffff40;padding-top:12px}</style></head>
+<style>.side{width:350px;gap:14px;justify-content:center}.side h1{font-size:28px}#cv{height:110px}.cm .n{padding:6px 0;font-size:26px}.m b{font-size:28px}.sec{border-top:2px solid #ffffff40;padding-top:12px}
+@media(max-width:900px){html,body{height:auto}body{overflow-x:hidden;overflow-y:auto}
+.app{flex-direction:column;height:auto;min-height:100vh;gap:14px;padding:46px 10px 20px}
+.stage{flex:none;height:560px;width:100%}
+.side{width:100%;max-width:640px;margin:0 auto;gap:14px}.side h1{display:none}
+#cv{height:110px}.ctl .row1{font-size:22px}.ctl.small .row1{font-size:18px}.ctl input{height:28px}
+.bar button{flex:1;font-size:17px;padding:11px 12px}.m b{font-size:26px}}
+</style></head>
 <body><a href="../index.html" title="Wszystkie wizualizacje" style="position:fixed;left:6px;top:6px;z-index:9;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font:700 16px Inter,system-ui,sans-serif;color:#2d4fa3;background:#ffffffd9;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px #0003">←</a><div class="app"><div class="stage"><canvas id="c"></canvas></div>
 <div class="side"><h1>Krzywa S i próg</h1>
 <div><div class="lbl">błąd modelu (loss)</div><canvas id="cv"></canvas></div>
@@ -29,16 +36,17 @@ function spd(){return $('lr').value/400}
 /* rozkład kropek bez nakładania: w każdym rzędzie kropki stoją obok siebie */
 function swarm(cls,sx,r){const pts=D.filter(d=>d.y===cls).sort((a,b)=>a.x-b.x),last=[];
  return pts.map(d=>{const px=sx(d.x);let k=0;while(last[k]!==undefined&&px-last[k]<2*r+1)k++;last[k]=px;return{d,px,row:k}})}
-function draw(){const{c,w,h}=LN.fit($('c')),L=60,Rr=w-24,r=Math.max(4,Math.min(6,w/220)),sx=v=>L+(v-X0)/(X1-X0)*(Rr-L);c.clearRect(0,0,w,h);
- const top=swarm(1,sx,r),bot=swarm(0,sx,r),nT=Math.max(...top.map(q=>q.row))+1,nB=Math.max(...bot.map(q=>q.row))+1,rh=2*r+1;
+function draw(){const{c,w,h}=LN.fit($('c')),L=60,Rr=w-24,sx=v=>L+(v-X0)/(X1-X0)*(Rr-L);c.clearRect(0,0,w,h);
+ let r=Math.max(4,Math.min(6,w/220)),top,bot,nT,nB,rh;
+ for(;;){top=swarm(1,sx,r);bot=swarm(0,sx,r);nT=Math.max(...top.map(q=>q.row))+1;nB=Math.max(...bot.map(q=>q.row))+1;rh=2*r+1;if(r<=1.5||(nT+nB)*rh<=(h-106)*.6)break;r-=.25}
  const T0=46,B0=h-60,T=T0+nT*rh+14,B=B0-nB*rh-14,sy=v=>B-v*(B-T);geo={T,B};
  const xt=MU+SD*(Math.log(t/(1-t))-p.b)/(p.w||1e-9),pos=p.w>=0,a=Math.max(X0,Math.min(X1,isFinite(xt)?xt:X1));
  // strefa diagnozy
  c.fillStyle='#e4572e1a';if(pos)c.fillRect(sx(a),T0-10,Rr-sx(a),B0-T0+20);else c.fillRect(L,T0-10,sx(a)-L,B0-T0+20);
- c.font='700 18px Inter,sans-serif';c.textAlign='center';
+ const nw=w<500;c.font=(nw?'700 15px':'700 18px')+' Inter,sans-serif';c.textAlign='center';
  const zl=pos?[sx(a),Rr]:[L,sx(a)],ol=pos?[L,sx(a)]:[sx(a),Rr];
- if(zl[1]-zl[0]>150){c.fillStyle=RED;c.fillText('diagnoza: cukrzyca',(zl[0]+zl[1])/2,T0-18)}
- if(ol[1]-ol[0]>90){c.fillStyle=BLUE;c.fillText('diagnoza: zdrowy',(ol[0]+ol[1])/2,T0-18)}
+ if(zl[1]-zl[0]>(nw?135:150)){c.fillStyle=RED;c.fillText('diagnoza: cukrzyca',(zl[0]+zl[1])/2,T0-18)}
+ if(ol[1]-ol[0]>(nw?120:90)){c.fillStyle=BLUE;c.fillText('diagnoza: zdrowy',(ol[0]+ol[1])/2,T0-18)}
  // siatka, osie
  c.strokeStyle='#1f2a4d22';c.lineWidth=1;[0,.5,1].forEach(v=>{c.beginPath();c.moveTo(L,sy(v));c.lineTo(Rr,sy(v));c.stroke()});
  c.fillStyle='#1f2a4d';c.font='600 15px Inter,sans-serif';c.textAlign='right';[0,.5,1].forEach(v=>c.fillText(String(v).replace('.',','),L-10,sy(v)+5));
@@ -47,7 +55,7 @@ function draw(){const{c,w,h}=LN.fit($('c')),L=60,Rr=w-24,r=Math.max(4,Math.min(6
  c.font='600 17px Inter,sans-serif';c.fillText('glukoza na czczo (mg/dl)',(L+Rr)/2,h-12);
  // kropki: kolor = prawdziwa klasa, czarna obwódka = błąd modelu
  const dot=(q,y,col)=>{const pr=prob(p,q.d.x)>=t,wrong=pr!==!!q.d.y;c.beginPath();c.arc(q.px,y,r,0,6.2832);c.fillStyle=col;c.fill();
-  if(wrong){c.lineWidth=2.5;c.strokeStyle='#1f2a4d';c.stroke()}};
+  if(wrong){c.lineWidth=Math.min(2.5,r*.55);c.strokeStyle='#1f2a4d';c.stroke()}};
  top.forEach(q=>dot(q,T0+r+q.row*rh,RED));bot.forEach(q=>dot(q,B0-r-q.row*rh,BLUE));
  c.font='700 15px Inter,sans-serif';c.textAlign='left';c.fillStyle=RED;c.fillText('chorzy',L+4,T0+r+5);c.fillStyle=BLUE;c.fillText('zdrowi',L+4,B0-r+5);
  // krzywa S

@@ -10,6 +10,12 @@
 .cnt i{font-style:normal;padding:0 3px;border-radius:5px;background:#fff}
 .corner button{padding:8px 14px;font-size:17px}.corner .bar{flex-direction:row;gap:8px}.corner #rst{flex:0 0 46px;padding:8px 0;font-size:22px}.corner #go{flex:1;padding:8px 6px}
 button:disabled{opacity:.45;cursor:default}
+@media(max-width:900px){html,body{height:auto}body{overflow-x:hidden;overflow-y:auto}
+.app{display:block;height:auto;min-height:100vh;padding:46px 10px 20px}
+.grid{grid-template-columns:minmax(0,1fr) 110px;grid-template-rows:clamp(260px,78vw,560px) 130px auto;gap:8px}
+.corner{grid-column:1/-1;gap:12px;overflow:visible}.head{font-size:17px}
+.corner .bar{gap:10px}.corner #go{padding:11px 6px;font-size:17px}.corner #rst{flex:0 0 52px;padding:10px 0}
+#c,#gb{touch-action:pan-y}}
 </style></head>
 <body><a href="../index.html" title="Wszystkie wizualizacje" style="position:fixed;left:6px;top:6px;z-index:9;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font:700 16px Inter,system-ui,sans-serif;color:#2d4fa3;background:#ffffffd9;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px #0003">←</a><div class="app"><div class="grid">
 <div class="card" style="background:transparent"><canvas id="c"></canvas></div>
@@ -72,8 +78,8 @@ function drawStrip(f){const cv=$(f===0?'gb':'gr'),G=setup(cv),x=G.x;if(!cur)retu
  x.strokeStyle='#b9c3de';x.lineWidth=1.5;x.setLineDash([7,5]);x.beginPath();
  if(f===0){x.moveTo(pos(b0),sc(cur.g));x.lineTo(pos(b1),sc(cur.g))}else{x.moveTo(sc(cur.g),pos(b0));x.lineTo(sc(cur.g),pos(b1))}x.stroke();x.setLineDash([]);
  x.fillStyle='#5d6a8e';x.font='700 14px Inter,system-ui,sans-serif';x.textAlign='left';
- x.fillText(f===0?'Podział wg: '+NAMES[0]:NAMES[1],f===0?12:12,f===0?20:20);
- if(f===0){x.font='500 13px Inter,system-ui,sans-serif';x.fillStyle='#9aa4c0';x.textAlign='right';x.fillText('gini przed: '+cur.g.toFixed(2),G.w-12,20)}
+ {const narrow=G.w<420;let t=f===0?(narrow?NAMES[0]:'Podział wg: '+NAMES[0]):NAMES[1];if(x.measureText(t).width>G.w-16){x.font='700 12px Inter,system-ui,sans-serif';t.split(' ').forEach((s,i)=>x.fillText(s,8,18+i*14))}else x.fillText(t,12,20)}
+ if(f===0){x.font='500 13px Inter,system-ui,sans-serif';x.fillStyle='#9aa4c0';x.textAlign='right';x.fillText((G.w<420?'gini: ':'gini przed: ')+cur.g.toFixed(2),G.w-12,20)}
  const pts=visible(f);
  if(pts.length>1){const A=pts.map(P),first=A[0],last=A[A.length-1];
   const base=q=>f===0?[q[0],sc(0)]:[sc(0),q[1]],par=q=>f===0?[q[0],sc(cur.g)]:[sc(cur.g),q[1]];
@@ -102,7 +108,7 @@ function draw(){drawScatter();drawStrip(0);drawStrip(1);head()}
 function hv(f,e){if(mode!=='found')return;const cv=$(f===0?'gb':'gr'),r=cv.getBoundingClientRect();
  const t=f===0?p.ix(e.clientX-r.left):p.iy(e.clientY-r.top);if(t<cur.b[2*f]||t>cur.b[2*f+1]){hover=null;draw();return}
  let q=res[f][0];res[f].forEach(a=>{if(Math.abs(a[0]-t)<Math.abs(q[0]-t))q=a});hover={f,t:q[0],s:q[1]};draw()}
-[0,1].forEach(f=>{const cv=$(f===0?'gb':'gr');cv.addEventListener('pointermove',e=>hv(f,e));cv.addEventListener('pointerleave',()=>{hover=null;draw()})});
+[0,1].forEach(f=>{const cv=$(f===0?'gb':'gr');cv.addEventListener('pointermove',e=>hv(f,e));cv.addEventListener('pointerdown',e=>hv(f,e));const off=e=>{if(hover){hover=null;draw()}};cv.addEventListener('pointerleave',off);cv.addEventListener('pointerup',e=>{if(e.pointerType!=='mouse')off()});cv.addEventListener('pointercancel',off)});
 function act(){if(mode==='idle')startScan();else if(mode==='found'){apply();draw()}}
 $('go').addEventListener('click',act);$('rst').addEventListener('click',()=>{init();draw()});
 addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();act()}});

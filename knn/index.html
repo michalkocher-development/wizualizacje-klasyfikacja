@@ -13,7 +13,11 @@ body{padding:0;display:block;overflow:hidden}
 .bar{display:flex;flex-direction:column;gap:10px}
 .bar button{font:inherit;font-size:20px;font-weight:600;padding:12px 20px;border-radius:999px;border:0;background:#ffffff30;color:#fff;cursor:pointer}
 .bar button.on{background:#fff;color:#2d4fa3}
-@media(max-width:900px){.app{flex-direction:column;height:100vh}.side{width:auto;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px}.side h1{display:none}.votes{font-size:34px;min-height:0}.ctl{flex:1;min-width:200px}.bar{flex-direction:row}}
+@media(max-width:900px){html,body{height:auto}body{overflow-x:hidden;overflow-y:auto}
+.app{flex-direction:column;height:auto;min-height:100vh;gap:14px;padding:46px 10px 20px}
+.stage{flex:none;height:auto;width:100%;max-width:640px;margin:0 auto}.stage canvas{height:auto;aspect-ratio:1/1;touch-action:manipulation}
+.side{width:100%;max-width:640px;margin:0 auto;gap:14px}.side h1{display:none}
+.votes{font-size:32px;min-height:46px;gap:14px}.ctl .row1{font-size:22px}.bar{flex-direction:row}.bar button{flex:1;font-size:17px;padding:11px 14px}}
 </style></head>
 <body><a href="../index.html" title="Wszystkie wizualizacje" style="position:fixed;left:6px;top:6px;z-index:9;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font:700 16px Inter,system-ui,sans-serif;color:#2d4fa3;background:#ffffffd9;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px #0003">←</a><div class="app">
 <div class="stage"><canvas id="c"></canvas></div>
@@ -38,7 +42,7 @@ function draw(){const K=+$('k').value;$('kv').textContent=K;p.clear();
    c.beginPath();c.arc(p.sx(a[0]),p.sy(a[1]),R*1.8,0,6.2832);c.lineWidth=2.5;c.strokeStyle='#1f2a4d';c.stroke();}}
   p.query(q,C[r.c]);});
  $('v').innerHTML=last?'<span style="color:'+C[0]+'">'+last.v[0]+'</span><span style="color:'+C[1]+'">'+last.v[1]+'</span>':'';}
-$('c').addEventListener('pointerdown',e=>{const t=p.eventPoint(e);if(t){pts.push(t);draw()}});
+$('c').addEventListener('click',e=>{const t=p.eventPoint(e);if(t){pts.push(t);draw()}});
 $('k').addEventListener('input',draw);
 $('bd').addEventListener('click',function(){showB=!showB;this.classList.toggle('on',showB);draw()});
 $('clr').addEventListener('click',()=>{pts=[];draw()});

@@ -24,11 +24,15 @@ function draw(){const v=view(),{c,w,h}=E.fit($('c')),mp=E.map(w,h);
  if(m.trees.length||anim)E.bg(c,w,h,pf);else{c.fillStyle='#f5f7fd';c.fillRect(0,0,w,h)}
  if(v.ov)drawLeaves(c,w,h,v.ov.tr,v.ov.lab*(v.ov.fade===undefined?1:v.ov.fade));
  const has=m.trees.length>0||(anim&&anim.prev.length>0)||(v.extra&&v.extra.e>0),o=[...Array(E.N).keys()].map(i=>[i,m.imp(i,v.F,v.w)]).sort((a,b)=>b[1]-a[1]);
- for(const[i,im]of o){const r=rad(im),x=mp.sx(E.X[i][0]),y=mp.sy(E.X[i][1]);c.beginPath();c.arc(x,y,r,0,6.2832);c.fillStyle=E.C[E.Y[i]];c.fill();
+ const rk=Math.max(.45,Math.min(1,Math.min(w,h)/620));
+ for(const[i,im]of o){const r=rad(im)*rk,x=mp.sx(E.X[i][0]),y=mp.sy(E.X[i][1]);c.beginPath();c.arc(x,y,r,0,6.2832);c.fillStyle=E.C[E.Y[i]];c.fill();
   const wr=has&&m.wrong(i,v.F);c.lineWidth=wr?3:1.6;c.strokeStyle=wr?'#1f2a4d':'#fff';c.stroke()}
  if(v.ov)drawSplits(c,w,h,v.ov.tr,v.ov.k,v.ov.T1,v.ov.fade===undefined?1:v.ov.fade);
  {const t=MODE==='A'?'wielkość = waga punktu · obwódka = model się myli':'wielkość = reszta (ile brakuje do dobrej odpowiedzi) · obwódka = model się myli';
-  c.font='700 14px Inter,sans-serif';const tw=c.measureText(t).width+18;c.fillStyle='#ffffffe0';c.beginPath();c.roundRect(w-tw-10,h-34,tw,26,8);c.fill();c.fillStyle='#5d6a8e';c.textAlign='left';c.fillText(t,w-tw-1,h-16)}
+  c.font=(w<500?'700 12px':'700 14px')+' Inter,sans-serif';const max=w-38,L=[];let line='';
+  t.split(' ').forEach(wd=>{const s=line?line+' '+wd:wd;if(line&&c.measureText(s).width>max){L.push(line);line=wd}else line=s});L.push(line);
+  const lh=w<500?16:18,tw=Math.max(...L.map(l=>c.measureText(l).width))+18,bh=L.length*lh+8;
+  c.fillStyle='#ffffffe0';c.beginPath();c.roundRect(w-tw-10,h-bh-8,tw,bh,8);c.fill();c.fillStyle='#5d6a8e';c.textAlign='left';L.forEach((l,i)=>c.fillText(l,w-tw-1,h-bh-8+lh*(i+1)-2))}
  thumbs();errChart();head()}
 function thumbs(){const{c,w,h}=E.fit($('th'));c.fillStyle='#f5f7fd';c.fillRect(0,0,w,h);c.fillStyle='#5d6a8e';c.font='700 14px Inter,sans-serif';c.textAlign='left';
  const pre=anim&&performance.now()-anim.t0<anim.T3,list=pre?anim.prev:m.trees,n=list.length;c.fillText(n?'Model = suma drzew':'Model = (jeszcze brak drzew)',12,20);if(!n)return;

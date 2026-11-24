@@ -1,5 +1,16 @@
 <!DOCTYPE html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Boosting – reszty</title><link rel="stylesheet" href="tv.css"><link rel="stylesheet" href="bst.css">
-<style>.grid{flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) 270px;grid-template-rows:minmax(0,1fr) 185px;gap:12px}</style></head>
+<style>.grid{flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) 270px;grid-template-rows:minmax(0,1fr) 185px;gap:12px}
+@media(max-width:900px){html,body{height:auto}body{overflow-x:hidden;overflow-y:auto}
+.app{display:block;height:auto;min-height:100vh;padding:46px 10px 20px}
+.grid{display:flex;flex-direction:column;gap:10px}
+.grid>.card:nth-child(1){order:1;height:clamp(300px,92vw,600px)}
+.grid>.corner{order:2;gap:12px;overflow:visible}
+.grid>.card:nth-child(3){order:3;height:130px}
+.grid>.card:nth-child(2){order:4;height:190px}
+.head{font-size:17px}.ctl2 .r{font-size:17px}.ctl2 input{height:28px}
+.corner .bar{gap:10px}.corner button{padding:11px 14px;font-size:17px}.corner .rst{flex:0 0 52px}
+#c,#th,#er{touch-action:pan-y}}
+</style></head>
 <body><a href="../index.html" title="Wszystkie wizualizacje" style="position:fixed;left:6px;top:6px;z-index:9;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font:700 16px Inter,system-ui,sans-serif;color:#2d4fa3;background:#ffffffd9;border-radius:999px;text-decoration:none;box-shadow:0 2px 8px #0003">←</a><div class="app"><div class="grid">
 <div class="card"><canvas id="c"></canvas></div>
 <div class="card"><canvas id="er"></canvas></div>
